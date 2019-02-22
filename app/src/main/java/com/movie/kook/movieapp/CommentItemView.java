@@ -36,7 +36,7 @@ public class CommentItemView extends LinearLayout {
 
     public void setId(String id){ TextView_id.setText(id); }
 
-    public void setstarScore(float starScore){
+    public void setStarScore(float starScore){
         RatingBar_movieScoreView.setRating(starScore);
     }
 

@@ -1,10 +1,5 @@
 package com.movie.kook.movieapp.data;
 
-/*
-
-
- */
-
 import java.util.ArrayList;
 
 public class Movie {

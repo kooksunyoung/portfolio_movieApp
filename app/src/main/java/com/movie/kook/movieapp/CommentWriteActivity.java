@@ -12,8 +12,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -27,18 +29,19 @@ import com.movie.kook.movieapp.data.ResponseInfo;
 
 public class CommentWriteActivity extends AppCompatActivity {
 
+    LinearLayout LinearLayout_write;
+
     RatingBar RatingBar_movieScore;
 
     EditText EditText_movieContents;
 
-    TextView TextView_title_write;
-
-    ImageView ImageView_grade_write;
-
     Button Button_save;
     Button Button_cancel;
 
-    MovieInfo movieInfo;
+    float movieScore;
+    String movieContents;
+
+    RequestMovie requestMovie;
 
 
     @Override
@@ -56,7 +59,13 @@ public class CommentWriteActivity extends AppCompatActivity {
             public boolean onTouch(View v, MotionEvent event) {
                 int action = event.getAction();
                 if(action == MotionEvent.ACTION_UP) {
-                    returnToMain();
+                    movieScore = RatingBar_movieScore.getRating();
+                    movieContents = EditText_movieContents.getText().toString().trim();
+                    if(movieContents.length() > 0) {
+                        returnToMain();
+                    } else {
+                        Toast.makeText(getApplicationContext(), "한줄평을 입력해주세요.", Toast.LENGTH_LONG).show();
+                    }
                     //onBackPressed();
                 }
                 return true;
@@ -75,84 +84,18 @@ public class CommentWriteActivity extends AppCompatActivity {
             }
         });
 
-        if(AppHelper.requestQueue == null){
-            AppHelper.requestQueue = Volley.newRequestQueue(getApplicationContext());
-        }
+        LinearLayout_write = (LinearLayout) findViewById(R.id.LinearLayout_write);
 
-        TextView_title_write = (TextView) findViewById(R.id.TextView_title_write);
-        ImageView_grade_write = (ImageView) findViewById(R.id.ImageView_grade_write);
+        requestMovie = new RequestMovie(LinearLayout_write, "commentWrite", getApplicationContext());
 
-        requestMovie();
-
-    }
-
-    public void requestMovie() {
-
-        String url = "http://" + AppHelper.host + ":" + AppHelper.port + "/movie/readMovie";
-        url += "?" + "id=1";
-
-        StringRequest request = new StringRequest(
-                Request.Method.GET,
-                url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        processResponse(response);
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                    }
-                }
-
-        );
-
-        request.setShouldCache(false);
-        AppHelper.requestQueue.add(request);
-
-    }
-
-    public void processResponse(String response) {
-        Gson gson = new Gson();
-
-        ResponseInfo info = gson.fromJson(response, ResponseInfo.class);
-        if (info.code == 200) {
-            Movie movie = gson.fromJson(response, Movie.class);
-
-            for (int i = 0; i < movie.result.size(); i++) {
-                movieInfo = movie.result.get(i);
-                TextView_title_write.setText(movieInfo.title);
-                setImageView_grade_write();
-            }
-        }
-    }
-
-    public void setImageView_grade_write() {
-        switch (movieInfo.grade){
-            case 12:
-                ImageView_grade_write.setBackgroundResource(R.drawable.ic_12);
-                break;
-            case 15:
-                ImageView_grade_write.setBackgroundResource(R.drawable.ic_15);
-                break;
-            case 19:
-                ImageView_grade_write.setBackgroundResource(R.drawable.ic_19);
-                break;
-            default:
-                ImageView_grade_write.setBackgroundResource(R.drawable.ic_all);
-                break;
-        }
     }
 
     public void returnToMain() {
-        float movieScore = RatingBar_movieScore.getRating();
-        String movieContents = EditText_movieContents.getText().toString().trim();
 
         Intent intent = new Intent(getApplicationContext(), MainActivity.class);
         intent.putExtra("movieScore", movieScore);
         intent.putExtra("movieContents", movieContents);
-        setResult(101, intent);
+        setResult(200, intent);
         //  setResult(Activity.RESULT_OK, intent);
 
         finish();

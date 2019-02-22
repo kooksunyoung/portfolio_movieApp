@@ -24,6 +24,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RatingBar;
 import android.widget.TextView;
@@ -47,53 +48,28 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
+    LinearLayout LinearLayout_main;
+
     Button Button_likeicon;
     Button Button_dislikeicon;
     Button Button_viewAll;
-    Button Button_println;
 
     TextView TextView_write;
-    TextView TextView_MoviecontentsView;
-    TextView TextView_println;
-    TextView TextView_title;
-    TextView TextView_date;
-    TextView TextView_reviewer_rating;
-    TextView TextView_reservation_rate;
-    TextView TextView_reservation_grade;
-    TextView TextView_genre;
-    TextView TextView_duration;
-    TextView TextView_audience;
-    TextView TextView_synopsis;
-    TextView TextView_director;
-    TextView TextView_actor;
-    TextView TextView_like;
-    TextView TextView_dislike;
 
     ListView ListView_write;
 
-    RatingBar RatingBar_movieScore;
-    RatingBar RatingBar_movieScoreView;
-    RatingBar RatingBar_audience_rating;
-
-    EditText EditText_movieContents;
-
-    ImageView ImageView_grade;
-    ImageView ImageView_image;
-
     boolean likeState = false;
     boolean dislikeState = false;
-
-    int likeCount;
-    int dislikeCount;
 
     float movieScore;
 
     String movieContents;
 
-    public static CommentAdater adater;
+    public static CommentAdater adapter;
 
-    MovieInfo movieInfo;
+    RequestMovie requestMovieActivity;
 
+    public static final int REQUEST_CODE_WRITE = 101;
 
 
     @Override
@@ -144,8 +120,6 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        TextView_like = (TextView) findViewById(R.id.TextView_like);
-        TextView_dislike = (TextView) findViewById(R.id.TextView_dislike);
 
         TextView_write = (TextView) findViewById(R.id.TextView_write);
         TextView_write.setOnTouchListener(new View.OnTouchListener() {
@@ -167,14 +141,11 @@ public class MainActivity extends AppCompatActivity {
 
         ListView_write = (ListView) findViewById(R.id.ListView_write);
 
-        RatingBar_movieScore = (RatingBar) findViewById(R.id.RatingBar_movieScore);
-        EditText_movieContents = (EditText) findViewById(R.id.EditText_movieContents);
+        adapter = new CommentAdater();
+        adapter.addItem(new CommentItem("kooktjsdud1", 3.5f, "핵노잼 ㅡ,.ㅡ"));
+        adapter.addItem(new CommentItem("kym7171", 5, "적당히 재밌다.오랜만에 잠 안오는 영화 봤네요."));
 
-        adater = new CommentAdater();
-        adater.addItem(new CommentItem("kooktjsdud1", 3.5f, "핵노잼 ㅡ,.ㅡ"));
-        adater.addItem(new CommentItem("kym7171", 5, "적당히 재밌다.오랜만에 잠 안오는 영화 봤네요."));
-
-        ListView_write.setAdapter(adater);
+        ListView_write.setAdapter(adapter);
 
         Button_viewAll = (Button) findViewById(R.id.Button_viewAll);
         Button_viewAll.setOnTouchListener(new View.OnTouchListener() {
@@ -197,100 +168,9 @@ public class MainActivity extends AppCompatActivity {
             AppHelper.requestQueue = Volley.newRequestQueue(getApplicationContext());
         }
 
-        findViewById();
-        requestMovie();
-    }
+        LinearLayout_main = (LinearLayout) findViewById(R.id.LinearLayout_main);
 
-    public void findViewById() {
-
-        TextView_title = (TextView) findViewById(R.id.TextView_title);
-        TextView_date = (TextView) findViewById(R.id.TextView_date);
-        RatingBar_audience_rating = (RatingBar) findViewById(R.id.RatingBar_audience_rating);
-        TextView_reviewer_rating = (TextView) findViewById(R.id.TextView_reviewer_rating);
-        TextView_reservation_rate = (TextView) findViewById(R.id.TextView_reservation_rate);
-        TextView_reservation_grade = (TextView) findViewById(R.id.TextView_reservation_grade);
-        ImageView_grade = (ImageView) findViewById(R.id.ImageView_grade);
-        ImageView_image = (ImageView) findViewById(R.id.ImageView_image);
-        TextView_genre = (TextView) findViewById(R.id.TextView_genre);
-        TextView_duration = (TextView) findViewById(R.id.TextView_duration);
-        TextView_audience = (TextView) findViewById(R.id.TextView_audience);
-        TextView_synopsis = (TextView) findViewById(R.id.TextView_synopsis);
-        TextView_director = (TextView) findViewById(R.id.TextView_director);
-        TextView_actor = (TextView) findViewById(R.id.TextView_actor);
-        TextView_like = (TextView) findViewById(R.id.TextView_like);
-        TextView_dislike = (TextView) findViewById(R.id.TextView_dislike);
-
-    }
-
-
-    public void requestMovie() {
-
-        String url = "http://" + AppHelper.host + ":" + AppHelper.port + "/movie/readMovie";
-        url += "?" + "id=1";
-
-        StringRequest request = new StringRequest(
-                Request.Method.GET,
-                url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-//                        println("응답 받음 => " + response);
-
-                        processResponse(response);
-
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        println("에러 발생 => " + error.getMessage());
-                    }
-                }
-
-        );
-
-        request.setShouldCache(false);
-        AppHelper.requestQueue.add(request);
-//        println("영화목록 요청 보냄");
-
-    }
-
-    public void println(String data) {
-//        TextView_println.append(data + "\n");
-    }
-
-    public void processResponse(String response){
-        Gson gson = new Gson();
-
-        ResponseInfo info = gson.fromJson(response, ResponseInfo.class);
-        if(info.code == 200){
-              Movie movie = gson.fromJson(response, Movie.class);
-//            println("영화 갯수 : " + movie.result.size());
-
-            for(int i = 0; i<movie.result.size(); i++){
-                movieInfo = movie.result.get(i);
-                TextView_title.setText(movieInfo.title);
-                TextView_date.setText(movieInfo.date);
-                RatingBar_audience_rating.setRating(movieInfo.audience_rating / 2);
-                TextView_reviewer_rating.setText(movieInfo.reviewer_rating + "");
-                TextView_reservation_rate.setText(movieInfo.reservation_rate + "");
-                TextView_reservation_grade.setText(movieInfo.reservation_grade + "");
-                setImageView_grade();
-                setImageView_image();
-                TextView_genre.setText(movieInfo.genre);
-                TextView_duration.setText(movieInfo.duration + "");
-                DecimalFormat df = new DecimalFormat("#,##0");
-                TextView_audience.setText(df.format(movieInfo.audience));
-                TextView_synopsis.setText(movieInfo.synopsis);
-                TextView_director.setText(movieInfo.director);
-                TextView_actor.setText(movieInfo.actor);
-                TextView_like.setText(movieInfo.like + "");
-                likeCount = movieInfo.like;
-                TextView_dislike.setText(movieInfo.dislike + "");
-                dislikeCount = movieInfo.dislike;
-            }
-
-        }
+        requestMovieActivity = new RequestMovie(LinearLayout_main, "main", getApplicationContext());
 
     }
 
@@ -299,45 +179,29 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
         super.onActivityResult(requestCode, resultCode, intent);
 
-        if(requestCode == 101){
-            if(intent != null){
-                movieScore = intent.getFloatExtra("movieScore", movieScore);
-                movieContents = intent.getStringExtra("movieContents");
-                adater.addItem(new CommentItem("*^^*", movieScore , movieContents ));
-                adater.notifyDataSetChanged();
+        // resultCode => 성공 : 200, 실패 : 400
+        if(requestCode == REQUEST_CODE_WRITE){
+            if(resultCode == 200){
+                if(intent != null){
+                    movieScore = intent.getFloatExtra("movieScore", movieScore);
+                    movieContents = intent.getStringExtra("movieContents");
+                    adapter.addItem(new CommentItem("*^^*", movieScore , movieContents ));
+                    adapter.notifyDataSetChanged();
+                } else {
+                    Toast.makeText(getApplicationContext(), "전달 받은 내용이 없습니다.", Toast.LENGTH_LONG).show();
+                }
+            } else {
+                Toast.makeText(getApplicationContext(), "응답코드가 달라 실패했습니다.", Toast.LENGTH_LONG).show();
             }
+        } else {
+            Toast.makeText(getApplicationContext(), "요청 코드가 다릅니다.", Toast.LENGTH_LONG).show();
         }
-    }
-
-    public void setImageView_grade() {
-
-        switch (movieInfo.grade){
-            case 12:
-                ImageView_grade.setBackgroundResource(R.drawable.ic_12);
-                break;
-            case 15:
-                ImageView_grade.setBackgroundResource(R.drawable.ic_15);
-                break;
-            case 19:
-                ImageView_grade.setBackgroundResource(R.drawable.ic_19);
-                break;
-            default:
-                ImageView_grade.setBackgroundResource(R.drawable.ic_all);
-                break;
-        }
-    }
-
-    public void setImageView_image() {
-        String url = movieInfo.image;
-
-        ImageLoadTask task = new ImageLoadTask(url, ImageView_image);
-        task.execute();
     }
 
 
     public void showCommentWriteActivity() {
         Intent intent = new Intent(getApplicationContext(), CommentWriteActivity.class);
-        startActivityForResult(intent, 101);
+        startActivityForResult(intent, REQUEST_CODE_WRITE);
     }
 
     class CommentAdater extends BaseAdapter {
@@ -375,34 +239,34 @@ public class MainActivity extends AppCompatActivity {
 
             CommentItem item = items.get(position);
             view.setId(item.getId());
-            view.setstarScore(item.getStarScore());
+            view.setStarScore(item.getStarScore());
             view.setContent(item.getContent());
             return view;
         }
     }
 
     public void likeDecrCount() {
-        likeCount--;
-        TextView_like.setText(String.valueOf(likeCount));
+        requestMovieActivity.likeCount--;
+        requestMovieActivity.TextView_like.setText(String.valueOf(requestMovieActivity.likeCount));
         Button_likeicon.setBackgroundResource(R.drawable.ic_thumb_up);
     }
 
     public void likeIncrCount() {
-        likeCount++;
-        TextView_like.setText(String.valueOf(likeCount));
+        requestMovieActivity.likeCount++;
+        requestMovieActivity.TextView_like.setText(String.valueOf(requestMovieActivity.likeCount));
         Button_likeicon.setBackgroundResource(R.drawable.ic_thumb_up_selected);
 
     }
 
     public void dislikeDecrCount() {
-        dislikeCount--;
-        TextView_dislike.setText(String.valueOf(dislikeCount));
+        requestMovieActivity.dislikeCount--;
+        requestMovieActivity.TextView_dislike.setText(String.valueOf(requestMovieActivity.dislikeCount));
         Button_dislikeicon.setBackgroundResource(R.drawable.ic_thumb_down);
     }
 
     public void dislikeIncrCount() {
-        dislikeCount++;
-        TextView_dislike.setText(String.valueOf(dislikeCount));
+        requestMovieActivity.dislikeCount++;
+        requestMovieActivity.TextView_dislike.setText(String.valueOf(requestMovieActivity.dislikeCount));
         Button_dislikeicon.setBackgroundResource(R.drawable.ic_thumb_down_selected);
     }
 

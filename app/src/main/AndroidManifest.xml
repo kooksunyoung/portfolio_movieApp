@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.movie.kook.movieapp">
+package="com.movie.kook.movieapp">
 
-    <uses-permission android:name="android.permission.INTERNET"/>
+<uses-permission android:name="android.permission.INTERNET"/>
 
-    <application
-        android:allowBackup="true"
-        android:icon="@drawable/ic_app"
-        android:label="@string/app_name"
-        android:roundIcon="@drawable/ic_app"
-        android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+<application
+    android:allowBackup="true"
+    android:icon="@drawable/ic_app"
+    android:label="@string/app_name"
+    android:roundIcon="@drawable/ic_app"
+    android:supportsRtl="true"
+    android:theme="@style/AppTheme">
+    <activity android:name=".MainActivity">
+        <intent-filter>
+            <action android:name="android.intent.action.MAIN" />
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity
-            android:name=".CommentWriteActivity"
-            android:label="한줄평 작성"/>
-        <activity
-            android:name=".CommentViewAllActivity"
-            android:label="한줄평 목록"/>
-    </application>
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent-filter>
+    </activity>
+    <activity
+        android:name=".CommentWriteActivity"
+        android:label="한줄평 작성"/>
+    <activity
+        android:name=".CommentViewAllActivity"
+        android:label="한줄평 목록"/>
+</application>
 
 </manifest>
